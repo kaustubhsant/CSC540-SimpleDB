@@ -5,8 +5,10 @@ import simpledb.file.*;
 /**
  * Manages the pinning and unpinning of buffers to blocks.
  * @author Edward Sciore
- *
+ * 
+ * @author Modified by Kaustubh Sant to implement Generic Clock replacement policy  
  */
+
 class BasicBufferMgr {
    private Buffer[] bufferpool;
    private int numAvailable;

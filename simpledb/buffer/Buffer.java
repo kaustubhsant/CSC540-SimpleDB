@@ -12,7 +12,10 @@ import simpledb.file.*;
  * and if so, the id of the modifying transaction and
  * the LSN of the corresponding log record.
  * @author Edward Sciore
+ * 
+ * @author Modified by Kaustubh Sant to implement Generic Clock replacement policy
  */
+
 public class Buffer {
    private Page contents = new Page();
    private Block blk = null;
