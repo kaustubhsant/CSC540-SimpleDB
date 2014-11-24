@@ -115,7 +115,8 @@ class BasicBufferMgr {
    /**
     * Returns buffer whose pin is zero and 
     * reference counter is also zero.
-    * If no such buffer found in 
+    * If no such buffer found in clockcounter runs 
+    * returns null
    **/
    
    private Buffer chooseUnpinnedBufferNew() {
