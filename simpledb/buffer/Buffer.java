@@ -160,7 +160,6 @@ public class Buffer {
     */
    
    boolean isRefbit() {
-	   System.out.println("current ref count=" + refbit);
 	   if(refbit>0){
 		   refbit--;
 		   return true;
