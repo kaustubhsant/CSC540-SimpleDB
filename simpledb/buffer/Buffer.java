@@ -17,6 +17,8 @@ public class Buffer {
    private Page contents = new Page();
    private Block blk = null;
    private int pins = 0;
+   private int refbit;	//reference counter
+   private int refcounter;
    private int modifiedBy = -1;  // negative means not modified
    private int logSequenceNumber = -1; // negative means no corresponding log record
 
@@ -34,7 +36,10 @@ public class Buffer {
     * {@link simpledb.server.SimpleDB#initFileAndLogMgr(String)} or
     * is called first.
     */
-   public Buffer() {}
+   public Buffer(int refcount) {
+	   refbit = refcount;
+	   refcounter = refcount;
+   }
    
    /**
     * Returns the integer value at the specified offset of the
@@ -148,7 +153,22 @@ public class Buffer {
    boolean isPinned() {
       return pins > 0;
    }
-
+   
+   /**
+    * Returns true if the buffer has reference counter is non-zero.
+    * @return true if the buffer is pinned
+    */
+   
+   boolean isRefbit() {
+	   System.out.println("current ref count=" + refbit);
+	   if(refbit>0){
+		   refbit--;
+		   return true;
+	   }
+	   else
+		   return false;
+   }
+   
    /**
     * Returns true if the buffer is dirty
     * due to a modification by the specified transaction.
@@ -171,6 +191,7 @@ public class Buffer {
       blk = b;
       contents.read(blk);
       pins = 0;
+      refbit =refcounter;
    }
 
    /**
@@ -186,5 +207,6 @@ public class Buffer {
       fmtr.format(contents);
       blk = contents.append(filename);
       pins = 0;
+      refbit = refcounter;
    }
 }

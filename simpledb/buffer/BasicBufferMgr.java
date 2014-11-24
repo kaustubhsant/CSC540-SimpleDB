@@ -10,6 +10,7 @@ import simpledb.file.*;
 class BasicBufferMgr {
    private Buffer[] bufferpool;
    private int numAvailable;
+   private int clockhand=0;
    
    /**
     * Creates a buffer manager having the specified number 
@@ -28,7 +29,7 @@ class BasicBufferMgr {
       bufferpool = new Buffer[numbuffs];
       numAvailable = numbuffs;
       for (int i=0; i<numbuffs; i++)
-         bufferpool[i] = new Buffer();
+         bufferpool[i] = new Buffer(5);		//reference counter for clock as args
    }
    
    /**
@@ -53,7 +54,9 @@ class BasicBufferMgr {
    synchronized Buffer pin(Block blk) {
       Buffer buff = findExistingBuffer(blk);
       if (buff == null) {
-         buff = chooseUnpinnedBuffer();
+         //buff = chooseUnpinnedBuffer();
+    	 buff = chooseUnpinnedBufferNew();
+    	 //System.out.println("clockhand in pin:"+ clockhand);
          if (buff == null)
             return null;
          buff.assignToBlock(blk);
@@ -74,8 +77,10 @@ class BasicBufferMgr {
     * @return the pinned buffer
     */
    synchronized Buffer pinNew(String filename, PageFormatter fmtr) {
-      Buffer buff = chooseUnpinnedBuffer();
-      if (buff == null)
+      //Buffer buff = chooseUnpinnedBuffer();
+	  Buffer buff = chooseUnpinnedBufferNew();
+	  //System.out.println("clockhand in pinnew:"+ clockhand);
+      if (buff == null) 
          return null;
       buff.assignToNew(filename, fmtr);
       numAvailable--;
@@ -110,10 +115,31 @@ class BasicBufferMgr {
       return null;
    }
    
+   /**
    private Buffer chooseUnpinnedBuffer() {
       for (Buffer buff : bufferpool)
          if (!buff.isPinned())
          return buff;
       return null;
+   }
+   **/
+   
+   private Buffer chooseUnpinnedBufferNew() {
+	   int startpos=clockhand;
+	   for(int i=0;i<=5;i++){
+	      //for (Buffer buff : bufferpool){
+		   int count=0;
+		   for (int j=startpos; count!= bufferpool.length; count++,j=(++j) %(bufferpool.length)){
+			 Buffer buff=bufferpool[j];
+	         if (!buff.isPinned()){
+	        	 if(!buff.isRefbit()){
+	        		 //System.out.println("replacing page at clockhand:"+ j);
+	        		 clockhand=(j+1) %(bufferpool.length);
+	        		 return buff;
+	        	 }
+	         }
+	   	  }
+	   }
+	   return null;
    }
 }
