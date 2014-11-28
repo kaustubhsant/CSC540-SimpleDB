@@ -36,7 +36,7 @@ public class BufferMgr {
     * @param numbuffers the number of buffer slots to allocate
     */
    public BufferMgr(int numbuffers,int clockcounter) {
-      bufferMgr = new BasicBufferMgr(numbuffers,clockcounter);
+	      bufferMgr = new BasicBufferMgr(numbuffers,clockcounter);
    }
    
    /**

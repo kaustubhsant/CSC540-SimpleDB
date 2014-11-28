@@ -33,6 +33,7 @@ class CommitRecord implements LogRecord {
     */
    public int writeToLog() {
       Object[] rec = new Object[] {COMMIT, txnum};
+      System.out.println(rec.toString());
       return logMgr.append(rec);
    }
    

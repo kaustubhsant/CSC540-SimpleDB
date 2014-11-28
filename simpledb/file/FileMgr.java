@@ -1,6 +1,7 @@
 package simpledb.file;
 
 import static simpledb.file.Page.BLOCK_SIZE;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -73,8 +74,13 @@ public class FileMgr {
     */
    synchronized void write(Block blk, ByteBuffer bb) {
       try {
+    	 // System.out.println("Inside write in FileMgr");
          bb.rewind();
+   	 // System.out.println("Inside write in FileMgr after rewindddd");
+
          FileChannel fc = getFile(blk.fileName());
+   	 // System.out.println("blockk filenammeeeeeee"+blk.fileName());
+
          fc.write(bb, blk.number() * BLOCK_SIZE);
       }
       catch (IOException e) {

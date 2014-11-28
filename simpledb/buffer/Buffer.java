@@ -1,5 +1,9 @@
 package simpledb.buffer;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Scanner;
 import simpledb.server.SimpleDB;
 import simpledb.file.*;
 
@@ -14,6 +18,7 @@ import simpledb.file.*;
  * @author Edward Sciore
  * 
  * @author Modified by Kaustubh Sant to implement Generic Clock replacement policy
+ * @author Modified by Nupur Mallik to add the saveBlock and the restoreBlock methods
  */
 
 public class Buffer {
@@ -24,6 +29,10 @@ public class Buffer {
    private int refcounter;
    private int modifiedBy = -1;  // negative means not modified
    private int logSequenceNumber = -1; // negative means no corresponding log record
+   //File saveFilename = new File("C:\\Users\\Nupur\\Softwares\\saveBlock.txt");
+   String saveFilename= "MyFile.txt";
+   PageFormatter fmtr1 = null;
+   static ArrayList<Integer> al = new ArrayList<Integer>();
 
    /**
     * Creates a new buffer, wrapping a new 
@@ -127,8 +136,22 @@ public class Buffer {
     * the page to disk.
     */
    void flush() {
+	   //System.out.println("Inside flush in Buffer"); 
+	   //Block newblk = saveBlock(blk);
+       //System.out.println(newblk.fileName());
       if (modifiedBy >= 0) {
+    	  System.out.println("Inside flush in Buffer and modified bit"); 
+    	 Block newblk = saveBlock(blk);
+    	 if(newblk != null)
+    	 {
+      	 System.out.println(newblk.fileName()); 
+    	 }
          SimpleDB.logMgr().flush(logSequenceNumber);
+         if(al.size() != 0)
+         {
+        	 al.remove(blk.number());
+        	 System.out.println("Block removed from buffer:" +blk.number());
+         }
          contents.write(blk);
          modifiedBy = -1;
       }
@@ -211,4 +234,78 @@ public class Buffer {
       pins = 0;
       refbit = refcounter;
    }
+
+   /**
+    * Initializes the buffer's page according to the specified formatter,
+    * and copies the contents of the buffer to a new block in the file of saved blocks.
+    * If the buffer was dirty, then the contents
+    * of the previous page are first written to disk.
+    * @param fmtr a page formatter, used to initialize the page
+    */
+   public Block saveBlock(Block blk) {
+	   Block newblk = null;
+	   int count = 0;
+	   //newblk = contents.append(saveFilename);
+	   System.out.println("Inside save blk");
+	   System.out.println("modifiedBy" +modifiedBy);
+	   for(int i=0; i<al.size(); i++)
+	   {
+		   if(al.get(i) == blk.number())
+			   count = 1;
+	   }
+	   if ((modifiedBy >= 0) && (count != 1)) 
+	   {
+	       //fmtr.format(contents);
+	       newblk = contents.append(saveFilename);
+	       al.add(newblk.number());
+	       System.out.println("Block saved in the save File:" +blk.number());
+	   }
+	   return newblk;
+   }
+   
+   /**
+    * Initializes the buffer's page according to the specified formatter,
+    * and copies the contents of the buffer to a new block in the file of saved blocks.
+    * If the buffer was dirty, then the contents
+    * of the previous page are first written to disk.
+    * @param filename the name of the file
+    * @param fmtr a page formatter, used to initialize the page
+    */
+   public void restoreBlock(int txnum, int lsn) {
+	   try{
+	      modifiedBy = txnum;
+	      int blknum = 0;
+	      File file = new File("/Users/Nupur/simpledb.txt");
+	      Scanner scanner = new Scanner(file);
+	      while(scanner.hasNext())
+	      {
+	    	  System.out.println("Looking for transaction" +txnum);
+	    	  int txn = scanner.nextInt();
+	    	  if (txn == txnum)
+	    	  {
+	    		  blknum = scanner.nextInt();	    		  
+	    		  File file1 = new File("/Users/Nupur/MyFile.txt");
+	    	      Scanner scanner1 = new Scanner(file1);
+	    	      while(scanner1.hasNext())
+	    	      {
+	    	    	  System.out.println("Looking for block num" +blknum);
+	    	    	  int blkno = scanner1.nextInt();
+	    	    	  if (blkno == blknum)
+	    	    	  {
+	    	    		  Block block = new Block("MyFile.txt",blkno);
+	    	    		  System.out.println("Block being retrieved");
+	    	    		  assignToBlock(block);
+	    	    	  }
+	    	      }
+	    	      scanner1.close();
+	    	  }
+	      }
+	      scanner.close();
+	      if (lsn >= 0)
+		      logSequenceNumber = lsn;
+     }
+   catch (IOException e) {
+      throw new RuntimeException("cannot read block ");
+   }
+	   }
 }

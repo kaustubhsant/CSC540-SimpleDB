@@ -3,6 +3,7 @@ package simpledb.log;
 import simpledb.server.SimpleDB;
 import simpledb.file.*;
 import static simpledb.file.Page.*;
+
 import java.util.*;
 
 /**
@@ -59,6 +60,7 @@ public class LogMgr implements Iterable<BasicLogRecord> {
     * @param lsn the LSN of a log record
     */
    public void flush(int lsn) {
+	   System.out.println("Inside flush in LogMgr");
       if (lsn >= currentLSN())
          flush();
    }

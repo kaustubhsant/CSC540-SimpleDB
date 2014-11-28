@@ -3,7 +3,9 @@ package simpledb.tx.recovery;
 import static simpledb.tx.recovery.LogRecord.*;
 import simpledb.file.Block;
 import simpledb.buffer.Buffer;
+import simpledb.buffer.PageFormatter;
 import simpledb.server.SimpleDB;
+
 import java.util.*;
 
 /**
@@ -12,6 +14,7 @@ import java.util.*;
  */
 public class RecoveryMgr {
    private int txnum;
+   private PageFormatter fmtr = null;
 
    /**
     * Creates a recovery manager for the specified transaction.
@@ -26,6 +29,7 @@ public class RecoveryMgr {
     * Writes a commit record to the log, and flushes it to disk.
     */
    public void commit() {
+	  System.out.println("Inside Commit In Class Recovery Mgmr");
       SimpleDB.bufferMgr().flushAll(txnum);
       int lsn = new CommitRecord(txnum).writeToLog();
       SimpleDB.logMgr().flush(lsn);
@@ -63,11 +67,23 @@ public class RecoveryMgr {
     */
    public int setInt(Buffer buff, int offset, int newval) {
       int oldval = buff.getInt(offset);
+      int newblknum = 0; 
       Block blk = buff.block();
+      Block newblk = buff.block();
+      newblk = buff.saveBlock(blk);
+      System.out.println(newblk+"after save block call");
+      if (newblk!= null)
+      {	  
+	      int saveBlknum = newblk.number();
+	      newblknum = saveBlknum;
+      }
       if (isTempBlock(blk))
          return -1;
-      else
-         return new SetIntRecord(txnum, blk, offset, oldval).writeToLog();
+      else if (newblk!= null) 
+      {
+    	  return new UpdateRecord(txnum, blk, offset, oldval, newblknum).writeToLog();
+      }
+      else return new SetIntRecord(txnum, blk, offset, oldval).writeToLog();
    }
 
    /**
@@ -80,11 +96,23 @@ public class RecoveryMgr {
     */
    public int setString(Buffer buff, int offset, String newval) {
       String oldval = buff.getString(offset);
+      int newblknum = 0;
       Block blk = buff.block();
+      Block newblk = buff.block();
+      newblk = buff.saveBlock(blk);
+      System.out.println(newblk+"after save block call");
+      if (newblk!= null)
+      {
+	     int saveBlknum = newblk.number();
+	     newblknum = saveBlknum;
+      }
       if (isTempBlock(blk))
          return -1;
-      else
-         return new SetStringRecord(txnum, blk, offset, oldval).writeToLog();
+      else if (newblk!= null)
+      {
+    	  return new UpdateRecord(txnum, blk, offset, oldval, newblknum).writeToLog();
+      }
+      else return new SetStringRecord(txnum, blk, offset, oldval).writeToLog();
    }
 
    /**
@@ -124,7 +152,7 @@ public class RecoveryMgr {
          if (rec.op() == COMMIT || rec.op() == ROLLBACK)
             finishedTxs.add(rec.txNumber());
          else if (!finishedTxs.contains(rec.txNumber()))
-            rec.undo(txnum);
+        	rec.undo(txnum);
       }
    }
 

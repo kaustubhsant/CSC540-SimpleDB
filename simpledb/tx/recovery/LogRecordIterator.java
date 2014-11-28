@@ -1,7 +1,9 @@
 package simpledb.tx.recovery;
 
 import static simpledb.tx.recovery.LogRecord.*;
+
 import java.util.Iterator;
+
 import simpledb.log.BasicLogRecord;
 import simpledb.server.SimpleDB;
 
@@ -12,6 +14,7 @@ import simpledb.server.SimpleDB;
  * {@link simpledb.log.LogIterator LogIterator},  
  * this class understands the meaning of the log records.
  * @author Edward Sciore
+ * @author Nupur Mallik - Added the update case.
  */
 class LogRecordIterator implements Iterator<LogRecord> {
    private Iterator<BasicLogRecord> iter = SimpleDB.logMgr().iterator();
@@ -45,6 +48,8 @@ class LogRecordIterator implements Iterator<LogRecord> {
             return new SetIntRecord(rec);
          case SETSTRING:
             return new SetStringRecord(rec);
+         case UPDATE:
+             return new UpdateRecord(rec);
          default:
             return null;
       }
