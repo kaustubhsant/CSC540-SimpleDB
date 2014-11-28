@@ -28,7 +28,7 @@ class BasicBufferMgr {
     * is called first.
     * @param numbuffs the number of buffer slots to allocate
     */
-   BasicBufferMgr(int numbuffs) {
+   BasicBufferMgr(int numbuffs,int clockcounter) {
       bufferpool = new Buffer[numbuffs];
       numAvailable = numbuffs;
       for (int i=0; i<numbuffs; i++)
@@ -129,6 +129,7 @@ class BasicBufferMgr {
 			 Buffer buff=bufferpool[j];
 	         if (!buff.isPinned()){
 	        	 if(!buff.isRefbit()){
+	        		 System.out.println("GClock policy used, Block replaced:B" + j);
 	        		 clockhand=(j+1) %(bufferpool.length);
 	        		 return buff;
 	        	 }
