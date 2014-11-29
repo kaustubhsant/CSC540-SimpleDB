@@ -235,24 +235,6 @@ public class Buffer {
       refbit = refcounter;
    }
 
-   /**  
-   * Determines whether the map has a mapping from  
-   * the block to some buffer.  
-   * @param blk the block to use as a key  
-   * @return true if there is a mapping; false otherwise  
-   */  
-   public boolean containsMapping(Block blk) {  
-	   return bufferMgr.containsMapping(blk);  
-   } 
-   /**  
-   * Returns the buffer that the map maps the specified block to.  
-   * @param blk the block to use as a key  
-   * @return the buffer mapped to if there is a mapping; null otherwise  
-   */  
-   public Buffer getMapping(Block blk) {  
-   	return bufferMgr.getMapping(blk);  
-   }  
-
    /**
     * Initializes the buffer's page according to the specified formatter,
     * and copies the contents of the buffer to a new block in the file of saved blocks.
