@@ -140,17 +140,11 @@ public class Buffer {
 	   //Block newblk = saveBlock(blk);
        //System.out.println(newblk.fileName());
       if (modifiedBy >= 0) {
-    	  System.out.println("Inside flush in Buffer and modified bit"); 
     	 Block newblk = saveBlock(blk);
-    	 if(newblk != null)
-    	 {
-      	 System.out.println(newblk.fileName()); 
-    	 }
          SimpleDB.logMgr().flush(logSequenceNumber);
          if(al.size() != 0)
          {
         	 al.remove(blk.number());
-        	 System.out.println("Block removed from buffer:" +blk.number());
          }
          contents.write(blk);
          modifiedBy = -1;
@@ -245,9 +239,6 @@ public class Buffer {
    public Block saveBlock(Block blk) {
 	   Block newblk = null;
 	   int count = 0;
-	   //newblk = contents.append(saveFilename);
-	   System.out.println("Inside save blk");
-	   System.out.println("modifiedBy" +modifiedBy);
 	   for(int i=0; i<al.size(); i++)
 	   {
 		   if(al.get(i) == blk.number())
@@ -258,7 +249,6 @@ public class Buffer {
 	       //fmtr.format(contents);
 	       newblk = contents.append(saveFilename);
 	       al.add(newblk.number());
-	       System.out.println("Block saved in the save File:" +blk.number());
 	   }
 	   return newblk;
    }
@@ -279,7 +269,6 @@ public class Buffer {
 	      Scanner scanner = new Scanner(file);
 	      while(scanner.hasNext())
 	      {
-	    	  System.out.println("Looking for transaction" +txnum);
 	    	  int txn = scanner.nextInt();
 	    	  if (txn == txnum)
 	    	  {
@@ -288,12 +277,10 @@ public class Buffer {
 	    	      Scanner scanner1 = new Scanner(file1);
 	    	      while(scanner1.hasNext())
 	    	      {
-	    	    	  System.out.println("Looking for block num" +blknum);
 	    	    	  int blkno = scanner1.nextInt();
 	    	    	  if (blkno == blknum)
 	    	    	  {
 	    	    		  Block block = new Block("MyFile.txt",blkno);
-	    	    		  System.out.println("Block being retrieved");
 	    	    		  assignToBlock(block);
 	    	    	  }
 	    	      }

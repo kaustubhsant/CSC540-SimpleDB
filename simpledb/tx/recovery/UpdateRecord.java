@@ -6,14 +6,9 @@ import simpledb.file.Block;
 import simpledb.log.BasicLogRecord;
 
 class UpdateRecord implements LogRecord {
-   private int txnum, offset;
+   private int txnum;
    private int newblknum = 0;
-   private String val;
-   private int val1;
    private Block blk;   
-   private Block newblk = null;
-   private PageFormatter fmtr = null;
-   private Buffer buffer = null;
    
    /**
     * Creates a new update log record.
@@ -22,26 +17,9 @@ class UpdateRecord implements LogRecord {
     * @param offset the offset of the value in the block
     * @param val the new value
     */
-   public UpdateRecord(int txnum, Block blk, int offset, String val, int newblknum) {
+   public UpdateRecord(int txnum, Block blk, int newblknum) {
       this.txnum = txnum;
       this.blk = blk;
-      this.offset = offset;
-      this.val = val;
-      this.newblknum = newblknum;
-   }
-
-   /**
-    * Creates a new update log record.
-    * @param txnum the ID of the specified transaction
-    * @param blk the block containing the value
-    * @param offset the offset of the value in the block
-    * @param val the new value
-    */
-   public UpdateRecord(int txnum, Block blk, int offset, int val1, int newblknum) {
-      this.txnum = txnum;
-      this.blk = blk;
-      this.offset = offset;
-      this.val1 = val1;
       this.newblknum = newblknum;
    }
    
@@ -54,10 +32,7 @@ class UpdateRecord implements LogRecord {
       String filename = rec.nextString();
       int blknum = rec.nextInt();
       blk = new Block(filename, blknum);
-      offset = rec.nextInt();
-      val = rec.nextString();
-	  //newblk = buffer.saveBlock(blk);
-	  //newblknum = rec.nextInt();
+	  newblknum = rec.nextInt();
    }
    
    /** 
@@ -71,7 +46,6 @@ class UpdateRecord implements LogRecord {
    public int writeToLog() {
       Object[] rec = new Object[] {UPDATE, txnum, blk.fileName(),
          blk.number(), newblknum};
-      System.out.println("Inside the Update Record");
       return logMgr.append(rec);
    }
    

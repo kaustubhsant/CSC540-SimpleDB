@@ -97,7 +97,6 @@ public class Page {
     * @param blk a reference to a disk block
     */
    public synchronized void write(Block blk) {
-	   System.out.println("Inside write in Page");
       filemgr.write(blk, contents);
    }
    
@@ -141,13 +140,9 @@ public class Page {
     */
    public synchronized String getString(int offset) {
       contents.position(offset);
-      //System.out.println("Content:" +contents.position(offset));
       int len = contents.getInt();
-      //System.out.println("Length:" +len);
       byte[] byteval = new byte[len];
-      //System.out.println("bytevaallll" + byteval);
       contents.get(byteval);
-      //System.out.println("afterr failll");
       return new String(byteval);
    }
    

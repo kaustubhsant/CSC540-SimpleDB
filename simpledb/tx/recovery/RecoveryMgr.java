@@ -3,7 +3,6 @@ package simpledb.tx.recovery;
 import static simpledb.tx.recovery.LogRecord.*;
 import simpledb.file.Block;
 import simpledb.buffer.Buffer;
-import simpledb.buffer.PageFormatter;
 import simpledb.server.SimpleDB;
 
 import java.util.*;
@@ -14,7 +13,6 @@ import java.util.*;
  */
 public class RecoveryMgr {
    private int txnum;
-   private PageFormatter fmtr = null;
 
    /**
     * Creates a recovery manager for the specified transaction.
@@ -29,7 +27,6 @@ public class RecoveryMgr {
     * Writes a commit record to the log, and flushes it to disk.
     */
    public void commit() {
-	  System.out.println("Inside Commit In Class Recovery Mgmr");
       SimpleDB.bufferMgr().flushAll(txnum);
       int lsn = new CommitRecord(txnum).writeToLog();
       SimpleDB.logMgr().flush(lsn);
@@ -71,7 +68,6 @@ public class RecoveryMgr {
       Block blk = buff.block();
       Block newblk = buff.block();
       newblk = buff.saveBlock(blk);
-      System.out.println(newblk+"after save block call");
       if (newblk!= null)
       {	  
 	      int saveBlknum = newblk.number();
@@ -81,7 +77,7 @@ public class RecoveryMgr {
          return -1;
       else if (newblk!= null) 
       {
-    	  return new UpdateRecord(txnum, blk, offset, oldval, newblknum).writeToLog();
+    	  return new UpdateRecord(txnum, blk, newblknum).writeToLog();
       }
       else return new SetIntRecord(txnum, blk, offset, oldval).writeToLog();
    }
@@ -100,7 +96,6 @@ public class RecoveryMgr {
       Block blk = buff.block();
       Block newblk = buff.block();
       newblk = buff.saveBlock(blk);
-      System.out.println(newblk+"after save block call");
       if (newblk!= null)
       {
 	     int saveBlknum = newblk.number();
@@ -110,7 +105,7 @@ public class RecoveryMgr {
          return -1;
       else if (newblk!= null)
       {
-    	  return new UpdateRecord(txnum, blk, offset, oldval, newblknum).writeToLog();
+    	  return new UpdateRecord(txnum, blk, newblknum).writeToLog();
       }
       else return new SetStringRecord(txnum, blk, offset, oldval).writeToLog();
    }
