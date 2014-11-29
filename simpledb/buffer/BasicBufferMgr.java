@@ -1,6 +1,7 @@
 package simpledb.buffer;
 
 import simpledb.file.*;
+import java.util.HashMap;
 
 /**
  * Manages the pinning and unpinning of buffers to blocks.
@@ -11,6 +12,7 @@ import simpledb.file.*;
 
 class BasicBufferMgr {
    private Buffer[] bufferpool;
+   private HashMap<Block,Buffer> bufferPoolMap;
    private int numAvailable;
    private int clockhand=0;
    private int clockcounter= 5;
@@ -30,6 +32,7 @@ class BasicBufferMgr {
     */
    BasicBufferMgr(int numbuffs, int clockcounter) {
       bufferpool = new Buffer[numbuffs];
+      bufferPoolMap=new HashMap<Block,Buffer>();
       numAvailable = numbuffs;
       for (int i=0; i<numbuffs; i++)
          bufferpool[i] = new Buffer(clockcounter);		//reference counter for clock as args
@@ -60,6 +63,8 @@ class BasicBufferMgr {
     	 buff = chooseUnpinnedBufferNew();
          if (buff == null)
             return null;
+	 this.unMapBlock(buff);
+         this.mapBlock(blk,buff);
          buff.assignToBlock(blk);
       }
       if (!buff.isPinned())
@@ -81,6 +86,8 @@ class BasicBufferMgr {
 	  Buffer buff = chooseUnpinnedBufferNew();
       if (buff == null) 
          return null;
+      this.unMapBlock(buff);
+      this.mapBlock(buff.block(),buff);
       buff.assignToNew(filename, fmtr);
       numAvailable--;
       buff.pin();
@@ -106,13 +113,44 @@ class BasicBufferMgr {
    }
    
    private Buffer findExistingBuffer(Block blk) {
-      for (Buffer buff : bufferpool) {
-         Block b = buff.block();
-         if (b != null && b.equals(blk))
-            return buff;
-      }
+	Buffer buffer = this.bufferPoolMap.get(blk);
+	if(buffer!=null)
+  	{
+	   return buffer;
+  	}
       return null;
    }
+
+   
+   private void mapBlock(Block block,Buffer buffer) {
+       this.bufferPoolMap.put(block,buffer);
+   }
+   
+   private void unMapBlock(Buffer buffer)
+   {
+	   if(buffer != null) {
+           this.bufferPoolMap.remove(buffer.block());
+	   }
+   }
+   
+   /**  
+   * Determines whether the map has a mapping from  
+   * the block to some buffer.  
+   * @param blk the block to use as a key  
+   * @return true if there is a mapping; false otherwise  
+   */  
+   boolean containsMapping(Block blk) {  
+	   return bufferPoolMap.containsKey(blk);  
+   } 
+   
+   /**  
+   * Returns the buffer that the map maps the specified block to.  
+   * @param blk the block to use as a key  
+   * @return the buffer mapped to if there is a mapping; null otherwise  
+   */  
+   Buffer getMapping(Block blk) {  
+	   return bufferPoolMap.get(blk);  
+   } 
    
    /**
     * Returns buffer whose pin is zero and 
