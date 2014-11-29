@@ -70,6 +70,20 @@ class BasicBufferMgr {
       if (!buff.isPinned())
          numAvailable--;
       buff.pin();
+      
+	  for(int i=0,j=i+1;i<bufferpool.length;i++,j++){
+		  Buffer buff1 = bufferpool[i];
+		  if(!buff1.isPinned())
+			  System.out.print("- ");
+		  else
+			  System.out.print("B" + j + " " );
+	  }
+	  System.out.println();
+	  for(int i=0,j=i+1;i<bufferpool.length;i++,j++){
+		  Buffer buff1 = bufferpool[i];
+		  System.out.println("B"+ j + " pincount:" + buff1.getPins() + ",Reference count:" + buff1.getRefbit());
+	  }
+
       return buff;
    }
    
@@ -82,7 +96,7 @@ class BasicBufferMgr {
     * @param fmtr a pageformatter object, used to format the new block
     * @return the pinned buffer
     */
-   synchronized Buffer pinNew(String filename, PageFormatter fmtr) {
+   synchronized Buffer pinNew(String filename, PageFormatter fmtr) {	   
 	  Buffer buff = chooseUnpinnedBufferNew();
       if (buff == null) 
          return null;
@@ -91,6 +105,19 @@ class BasicBufferMgr {
       buff.assignToNew(filename, fmtr);
       numAvailable--;
       buff.pin();
+	  System.out.println("Buffers avaialble:" + numAvailable);
+	  for(int i=0,j=i+1;i<bufferpool.length;i++,j++){
+		  Buffer buff1 = bufferpool[i];
+		  if(!buff1.isPinned())
+			  System.out.print("- ");
+		  else
+			  System.out.print("B" + j + " " );
+	  }
+	  System.out.println();
+	  for(int i=0,j=i+1;i<bufferpool.length;i++,j++){
+		  Buffer buff1 = bufferpool[i];
+		  System.out.println("B"+ j + " pincount:" + buff1.getPins() + ",Reference count:" + buff1.getRefbit());
+	  }
       return buff;
    }
    
@@ -102,6 +129,19 @@ class BasicBufferMgr {
       buff.unpin();
       if (!buff.isPinned())
          numAvailable++;
+	  for(int i=0,j=i+1;i<bufferpool.length;i++,j++){
+		  Buffer buff1 = bufferpool[i];
+		  if(!buff1.isPinned())
+			  System.out.print("- ");
+		  else
+			  System.out.print("B" + j + " " );
+	  }
+	  System.out.println();
+	  for(int i=0,j=i+1;i<bufferpool.length;i++,j++){
+		  Buffer buff1 = bufferpool[i];
+		  System.out.println("B"+ j + " pincount:" + buff1.getPins() + ",Reference count:" + buff1.getRefbit());
+	  }
+
    }
    
    /**
@@ -167,7 +207,7 @@ class BasicBufferMgr {
 			 Buffer buff=bufferpool[j];
 	         if (!buff.isPinned()){
 	        	 if(!buff.isRefbit()){
-	        		 System.out.println("GClock policy used, Block replaced:B" + j);
+	        		 System.out.println("GClock policy used, Block replaced:B" + (j+1));
 	        		 clockhand=(j+1) %(bufferpool.length);
 	        		 return buff;
 	        	 }

@@ -49,11 +49,32 @@ public class Buffer {
     * is called first.
     */
    public Buffer(int refcount) {
-	   refbit = refcount;
+	   refbit = 0;
 	   refcounter = refcount;
    }
    
-   /**
+   
+   public int getPins() {
+	return pins;
+   }
+
+
+   public void setPins(int pins) {
+	this.pins = pins;
+   }
+
+
+   public int getRefbit() {
+	return refbit;
+   }
+
+
+   public void setRefbit(int refbit) {
+	this.refbit = refbit;
+   }
+
+
+/**
     * Returns the integer value at the specified offset of the
     * buffer's page.
     * If an integer was not stored at that location,
@@ -136,9 +157,6 @@ public class Buffer {
     * the page to disk.
     */
    void flush() {
-	   //System.out.println("Inside flush in Buffer"); 
-	   //Block newblk = saveBlock(blk);
-       //System.out.println(newblk.fileName());
       if (modifiedBy >= 0) {
     	 Block newblk = saveBlock(blk);
          SimpleDB.logMgr().flush(logSequenceNumber);
