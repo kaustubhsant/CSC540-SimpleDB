@@ -49,7 +49,7 @@ public class Buffer {
     * is called first.
     */
    public Buffer(int refcount) {
-	   refbit = 0;
+	   refbit = -1;
 	   refcounter = refcount;
    }
    
@@ -174,6 +174,8 @@ public class Buffer {
     */
    void pin() {
       pins++;
+      if(pins > 0)
+    	  refbit =-1;
    }
 
    /**
@@ -181,6 +183,8 @@ public class Buffer {
     */
    void unpin() {
       pins--;
+      if(pins==0)
+    	  refbit = refcounter;
    }
 
    /**
@@ -228,7 +232,7 @@ public class Buffer {
       blk = b;
       contents.read(blk);
       pins = 0;
-      refbit =refcounter;
+      refbit =-1;
    }
 
    /**
@@ -244,7 +248,7 @@ public class Buffer {
       fmtr.format(contents);
       blk = contents.append(filename);
       pins = 0;
-      refbit = refcounter;
+      refbit = -1;
    }
 
    /**

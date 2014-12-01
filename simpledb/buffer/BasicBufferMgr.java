@@ -63,14 +63,14 @@ class BasicBufferMgr {
     	 buff = chooseUnpinnedBufferNew();
          if (buff == null)
             return null;
-	 this.unMapBlock(buff);
+         this.unMapBlock(buff);
          this.mapBlock(blk,buff);
          buff.assignToBlock(blk);
       }
       if (!buff.isPinned())
          numAvailable--;
       buff.pin();
-      
+      System.out.println("Buffers available:" + numAvailable); //TODO: no. of buffers available
 	  for(int i=0,j=i+1;i<bufferpool.length;i++,j++){
 		  Buffer buff1 = bufferpool[i];
 		  if(!buff1.isPinned())
@@ -81,7 +81,11 @@ class BasicBufferMgr {
 	  System.out.println();
 	  for(int i=0,j=i+1;i<bufferpool.length;i++,j++){
 		  Buffer buff1 = bufferpool[i];
-		  System.out.println("B"+ j + " pincount:" + buff1.getPins() + ",Reference count:" + buff1.getRefbit());
+		  System.out.print("B"+ j + " pincount:" + buff1.getPins() + ",");
+		  if(buff1.getRefbit()==-1)
+			  System.out.println("Reference count:-");
+		  else
+			  System.out.println("Reference count:" + buff1.getRefbit());
 	  }
 
       return buff;
@@ -116,7 +120,11 @@ class BasicBufferMgr {
 	  System.out.println();
 	  for(int i=0,j=i+1;i<bufferpool.length;i++,j++){
 		  Buffer buff1 = bufferpool[i];
-		  System.out.println("B"+ j + " pincount:" + buff1.getPins() + ",Reference count:" + buff1.getRefbit());
+		  System.out.print("B"+ j + " pincount:" + buff1.getPins() + ",");
+		  if(buff1.getRefbit()==-1)
+			  System.out.println("Reference count:-");
+		  else
+			  System.out.println("Reference count:" + buff1.getRefbit());
 	  }
       return buff;
    }
@@ -129,6 +137,7 @@ class BasicBufferMgr {
       buff.unpin();
       if (!buff.isPinned())
          numAvailable++;
+      System.out.println("Buffers available:" + numAvailable);
 	  for(int i=0,j=i+1;i<bufferpool.length;i++,j++){
 		  Buffer buff1 = bufferpool[i];
 		  if(!buff1.isPinned())
@@ -139,7 +148,11 @@ class BasicBufferMgr {
 	  System.out.println();
 	  for(int i=0,j=i+1;i<bufferpool.length;i++,j++){
 		  Buffer buff1 = bufferpool[i];
-		  System.out.println("B"+ j + " pincount:" + buff1.getPins() + ",Reference count:" + buff1.getRefbit());
+		  System.out.print("B"+ j + " pincount:" + buff1.getPins() + ",");
+		  if(buff1.getRefbit()==-1)
+			  System.out.println("Reference count:-");
+		  else
+			  System.out.println("Reference count:" + buff1.getRefbit());
 	  }
 
    }
