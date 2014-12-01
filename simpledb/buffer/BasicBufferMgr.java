@@ -70,7 +70,7 @@ class BasicBufferMgr {
       if (!buff.isPinned())
          numAvailable--;
       buff.pin();
-      System.out.println("Buffers available:" + numAvailable); //TODO: no. of buffers available
+      System.out.println("Unpinned Buffers available:" + numAvailable); 
 	  for(int i=0,j=i+1;i<bufferpool.length;i++,j++){
 		  Buffer buff1 = bufferpool[i];
 		  if(!buff1.isPinned())
@@ -109,7 +109,7 @@ class BasicBufferMgr {
       buff.assignToNew(filename, fmtr);
       numAvailable--;
       buff.pin();
-	  System.out.println("Buffers avaialble:" + numAvailable);
+	  System.out.println("Unpinned Buffers avaialble:" + numAvailable);
 	  for(int i=0,j=i+1;i<bufferpool.length;i++,j++){
 		  Buffer buff1 = bufferpool[i];
 		  if(!buff1.isPinned())
@@ -137,7 +137,7 @@ class BasicBufferMgr {
       buff.unpin();
       if (!buff.isPinned())
          numAvailable++;
-      System.out.println("Buffers available:" + numAvailable);
+      System.out.println("Unpinned Buffers available:" + numAvailable);
 	  for(int i=0,j=i+1;i<bufferpool.length;i++,j++){
 		  Buffer buff1 = bufferpool[i];
 		  if(!buff1.isPinned())
