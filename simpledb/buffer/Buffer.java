@@ -1,9 +1,11 @@
 package simpledb.buffer;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+
 import simpledb.server.SimpleDB;
 import simpledb.file.*;
 
@@ -283,20 +285,23 @@ public class Buffer {
     * @param filename the name of the file
     * @param fmtr a page formatter, used to initialize the page
     */
-   public void restoreBlock(int txnum, int lsn) {
+    public void restoreBlock(int txnum, int lsn) {
 	   try{
 	      modifiedBy = txnum;
 	      int blknum = 0;
-	      File file = new File("/Users/Nupur/simpledb.txt");
-	      Scanner scanner = new Scanner(file);
+	      FileReader fileReader = new FileReader("simpledb.log");
+	      Scanner scanner = new Scanner(fileReader);
 	      while(scanner.hasNext())
 	      {
 	    	  int txn = scanner.nextInt();
 	    	  if (txn == txnum)
 	    	  {
 	    		  blknum = scanner.nextInt();	    		  
-	    		  File file1 = new File("/Users/Nupur/MyFile.txt");
-	    	      Scanner scanner1 = new Scanner(file1);
+	    		  String s = "MyFile.txt";
+	    		  FileReader fileReader1 = new FileReader(s);
+	    	
+	    		  
+	    	      Scanner scanner1 = new Scanner(fileReader1);
 	    	      while(scanner1.hasNext())
 	    	      {
 	    	    	  int blkno = scanner1.nextInt();
