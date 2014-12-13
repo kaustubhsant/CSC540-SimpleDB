@@ -25,7 +25,7 @@ import simpledb.file.*;
 
 public class Buffer {
    private Page contents = new Page();
-   private Block blk = null;
+   private Block blk = null,newblk;
    private int pins = 0;
    private int refbit;	//reference counter
    private int refcounter;
@@ -34,7 +34,6 @@ public class Buffer {
    //File saveFilename = new File("C:\\Users\\Nupur\\Softwares\\saveBlock.txt");
    String saveFilename= "MyFile.txt";
    PageFormatter fmtr1 = null;
-   static ArrayList<Integer> al = new ArrayList<Integer>();
 
    /**
     * Creates a new buffer, wrapping a new 
@@ -160,12 +159,7 @@ public class Buffer {
     */
    void flush() {
       if (modifiedBy >= 0) {
-    	 Block newblk = saveBlock(blk);
-         SimpleDB.logMgr().flush(logSequenceNumber);
-         if(al.size() != 0)
-         {
-        	 al.remove(blk.number());
-         }
+    	 SimpleDB.logMgr().flush(logSequenceNumber);
          contents.write(blk);
          modifiedBy = -1;
       }
@@ -218,7 +212,7 @@ public class Buffer {
     * @param txnum the id of the transaction
     * @return true if the transaction modified the buffer
     */
-   boolean isModifiedBy(int txnum) {
+   public boolean isModifiedBy(int txnum) {
       return txnum == modifiedBy;
    }
 
@@ -261,19 +255,7 @@ public class Buffer {
     * @param fmtr a page formatter, used to initialize the page
     */
    public Block saveBlock(Block blk) {
-	   Block newblk = null;
-	   int count = 0;
-	   for(int i=0; i<al.size(); i++)
-	   {
-		   if(al.get(i) == blk.number())
-			   count = 1;
-	   }
-	   if ((modifiedBy >= 0) && (count != 1)) 
-	   {
-	       //fmtr.format(contents);
-	       newblk = contents.append(saveFilename);
-	       al.add(newblk.number());
-	   }
+	   newblk = contents.append(saveFilename);
 	   return newblk;
    }
    
@@ -285,42 +267,10 @@ public class Buffer {
     * @param filename the name of the file
     * @param fmtr a page formatter, used to initialize the page
     */
-    public void restoreBlock(int txnum, int lsn) {
-	   try{
-	      modifiedBy = txnum;
-	      int blknum = 0;
-	      FileReader fileReader = new FileReader("simpledb.log");
-	      Scanner scanner = new Scanner(fileReader);
-	      while(scanner.hasNext())
-	      {
-	    	  int txn = scanner.nextInt();
-	    	  if (txn == txnum)
-	    	  {
-	    		  blknum = scanner.nextInt();	    		  
-	    		  String s = "MyFile.txt";
-	    		  FileReader fileReader1 = new FileReader(s);
-	    	
-	    		  
-	    	      Scanner scanner1 = new Scanner(fileReader1);
-	    	      while(scanner1.hasNext())
-	    	      {
-	    	    	  int blkno = scanner1.nextInt();
-	    	    	  if (blkno == blknum)
-	    	    	  {
-	    	    		  Block block = new Block("MyFile.txt",blkno);
-	    	    		  assignToBlock(block);
-	    	    	  }
-	    	      }
-	    	      scanner1.close();
-	    	  }
-	      }
-	      scanner.close();
-	      if (lsn >= 0)
-		      logSequenceNumber = lsn;
-     }
-   catch (IOException e) {
-      throw new RuntimeException("cannot read block ");
+   public void restoreBlock(Block newblk){
+	   contents.read(newblk);
+	   SimpleDB.logMgr().flush(logSequenceNumber);
+       contents.write(blk);
    }
-	   }
 
 }

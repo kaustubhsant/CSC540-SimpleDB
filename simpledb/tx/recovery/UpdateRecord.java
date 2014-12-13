@@ -8,7 +8,7 @@ import simpledb.log.BasicLogRecord;
 class UpdateRecord implements LogRecord {
    private int txnum;
    private int newblknum = 0;
-   private Block blk;   
+   private Block blk,newblk;   
    
    /**
     * Creates a new update log record.
@@ -17,10 +17,10 @@ class UpdateRecord implements LogRecord {
     * @param offset the offset of the value in the block
     * @param val the new value
     */
-   public UpdateRecord(int txnum, Block blk, int newblknum) {
+   public UpdateRecord(int txnum, Block blk, Block newblk) {
       this.txnum = txnum;
       this.blk = blk;
-      this.newblknum = newblknum;
+      this.newblk = newblk;
    }
    
    /**
@@ -32,7 +32,9 @@ class UpdateRecord implements LogRecord {
       String filename = rec.nextString();
       int blknum = rec.nextInt();
       blk = new Block(filename, blknum);
+	  String newfilename = rec.nextString();
 	  newblknum = rec.nextInt();
+	  newblk = new Block(newfilename, newblknum);
    }
    
    /** 
@@ -45,7 +47,7 @@ class UpdateRecord implements LogRecord {
     */
    public int writeToLog() {
       Object[] rec = new Object[] {UPDATE, txnum, blk.fileName(),
-         blk.number(), newblknum};
+         blk.number(), newblk.fileName(),newblk.number()};
       return logMgr.append(rec);
    }
    
@@ -58,7 +60,7 @@ class UpdateRecord implements LogRecord {
    }
    
    public String toString() {
-      return "<UPDATE " + txnum + " " + blk + " " + newblknum + ">";
+      return "<UPDATE " + txnum + " " + blk + " " + newblk + ">";
    }
    
    /** 
@@ -71,7 +73,7 @@ class UpdateRecord implements LogRecord {
    public void undo(int txnum) {
       BufferMgr buffMgr = SimpleDB.bufferMgr();
       Buffer buff = buffMgr.pin(blk);
-      buff.restoreBlock(txnum, -1);
+      buff.restoreBlock(newblk);
       buffMgr.unpin(buff);
    }
 }

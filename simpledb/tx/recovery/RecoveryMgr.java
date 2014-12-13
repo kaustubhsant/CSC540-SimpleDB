@@ -66,20 +66,19 @@ public class RecoveryMgr {
       int oldval = buff.getInt(offset);
       int newblknum = 0; 
       Block blk = buff.block();
-      Block newblk = buff.block();
-      newblk = buff.saveBlock(blk);
-      if (newblk!= null)
-      {	  
-	      int saveBlknum = newblk.number();
-	      newblknum = saveBlknum;
-      }
-      if (isTempBlock(blk))
-         return -1;
-      else if (newblk!= null) 
-      {
-    	  return new UpdateRecord(txnum, blk, newblknum).writeToLog();
-      }
-      else return new SetIntRecord(txnum, blk, offset, oldval).writeToLog();
+      Block newblk;
+	  if (isTempBlock(blk))
+		  return -1;
+	  else 
+	  {
+		  if(!buff.isModifiedBy(txnum))
+		  {
+			  newblk = buff.saveBlock(blk); 
+    		  return new UpdateRecord(txnum, blk, newblk).writeToLog();
+		  }
+		  else
+			  return -1;
+	  }
    }
 
    /**
@@ -94,20 +93,19 @@ public class RecoveryMgr {
       String oldval = buff.getString(offset);
       int newblknum = 0;
       Block blk = buff.block();
-      Block newblk = buff.block();
-      newblk = buff.saveBlock(blk);
-      if (newblk!= null)
-      {
-	     int saveBlknum = newblk.number();
-	     newblknum = saveBlknum;
-      }
-      if (isTempBlock(blk))
-         return -1;
-      else if (newblk!= null)
-      {
-    	  return new UpdateRecord(txnum, blk, newblknum).writeToLog();
-      }
-      else return new SetStringRecord(txnum, blk, offset, oldval).writeToLog();
+      Block newblk;
+	  if (isTempBlock(blk))
+		  return -1;
+	  else 
+	  {
+		  if(!buff.isModifiedBy(txnum))
+		  {
+			  newblk = buff.saveBlock(blk); 
+    		  return new UpdateRecord(txnum, blk, newblk).writeToLog();
+		  }
+		  else
+			  return -1;
+	  }
    }
 
    /**
